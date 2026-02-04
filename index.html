@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bear Trap Calculator - Pro v3.2</title>
+    <title>Bear Trap Calculator - Pro v3.3</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; color: #333; padding: 20px; max-width: 800px; margin: 0 auto; }
         .lang-container { text-align: right; margin-bottom: 10px; }
@@ -21,12 +21,13 @@
         th, td { padding: 8px; text-align: center; border-bottom: 1px solid #eee; font-size: 0.95em; }
         th { background-color: #f8f9fa; color: #444; }
         input.table-input { width: 80%; padding: 5px; text-align: center; }
-        .btn-calc { width: 100%; padding: 15px; background-color: #27ae60; color: white; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; transition: background 0.3s; margin-top: 20px; }
-        .btn-calc:hover { background-color: #219150; }
+        .btn-calc { width: 100%; padding: 15px; background-color: #2980b9; color: white; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; transition: background 0.3s; margin-top: 20px; }
+        .btn-calc:hover { background-color: #1f6391; }
         #result-area { display: none; background-color: #e8f6f3; border: 1px solid #a3e4d7; }
         .result-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1.1em; }
         .result-highlight { font-weight: bold; color: #d35400; }
         .notice { font-size: 0.9em; color: #e67e22; margin-top: 10px; font-style: italic; border-top: 1px dashed #ccc; padding-top: 10px; }
+        .option-box { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -59,7 +60,11 @@
             </select>
         </div>
 
-        <div class="input-group">
+        <div class="option-box">
+            <label style="cursor: pointer; display: flex; align-items: center;">
+                <input type="checkbox" id="rosaToggle">
+                <span data-i18n="label_rosa">使用罗莎 (弓兵攻击 +30%)</span>
+            </label>
             <label style="cursor: pointer; display: flex; align-items: center;">
                 <input type="checkbox" id="minInfToggle" checked>
                 <span data-i18n="label_min_inf">强制盾兵最小 5,000 人</span>
@@ -112,6 +117,7 @@
                 config_title: "战术配置",
                 label_capacity: "出征容量：",
                 label_gold_level: "兵种黄金等级：",
+                label_rosa: "使用罗莎 (弓兵攻击 +30%)",
                 label_min_inf: "强制盾兵最小 5,000 人",
                 stats_title: "面板百分比加成 (%)",
                 th_troop: "兵种",
@@ -122,16 +128,17 @@
                 troop_hun: "🏹 弓兵",
                 btn_calc: "开始计算最佳比例",
                 result_title: "⚖️ 最佳出征方案",
-                msg_correction: "⚠️ 提示：盾兵已按最小5000人补齐。取消勾选“强制盾兵”可查看纯理论最高伤害比例。",
+                msg_correction: "⚠️ 提示：盾兵已补齐至5000人。建议检查攻击加成是否漏算罗莎或其他英雄技能。",
                 alert_stats: "请输入正确的数值！"
             },
             "en": {
-                title: "🐻 Bear Trap Calculator",
+                title: "Bear Trap Calculator",
                 author_label: "Author",
                 config_title: "Tactical Config",
                 label_capacity: "March Capacity:",
                 label_gold_level: "Gold Tier:",
-                label_min_inf: "Force Min 5,000 Infantry",
+                label_rosa: "Use Rosa (Archer Atk +30%)",
+                label_min_inf: "Min 5,000 Infantry",
                 stats_title: "Panel Buffs (%)",
                 th_troop: "Troop Type",
                 th_buff_atk: "Atk Buff (%)",
@@ -141,7 +148,7 @@
                 troop_hun: "🏹 Archer",
                 btn_calc: "Calculate Best Ratio",
                 result_title: "⚖️ Optimal Formation",
-                msg_correction: "⚠️ Note: Infantry fixed at 5k. Uncheck 'Force Min' for pure theoretical max damage.",
+                msg_correction: "⚠️ Note: Infantry fixed at 5k based on your current stats.",
                 alert_stats: "Please enter valid numbers!"
             }
         };
@@ -162,6 +169,7 @@
             const capacity = parseFloat(document.getElementById('totalCapacity').value) || 0;
             const goldLevel = parseInt(document.getElementById('goldLevel').value);
             const useMinInf = document.getElementById('minInfToggle').checked;
+            const useRosa = document.getElementById('rosaToggle').checked;
 
             if (capacity <= 0) return;
 
@@ -173,19 +181,23 @@
             const bAtkHun = parseFloat(document.getElementById('hun_buff_atk').value) || 0;
             const bLethHun = parseFloat(document.getElementById('hun_buff_leth').value) || 0;
 
-            // 1. 初始化伤害系数
+            // 1. 初始化技能伤害系数 & 攻击修正
             let mRid = 0.8; 
             let mHun = 1.21;
-            let goldAtkHun = 0;
+            let extraAtkHun = 0;
 
+            // 黄金等级修正
             if (goldLevel >= 3) { mRid *= 1.1; mHun *= 1.1; }
             if (goldLevel >= 5) { mRid = 0.8 * 1.15; mHun = 1.21 * 1.15; }
-            if (goldLevel >= 8) { mRid = 0.8 * 1.15; mHun = 1.21 * 1.225; goldAtkHun = 4; }
+            if (goldLevel >= 8) { mRid = 0.8 * 1.15; mHun = 1.21 * 1.225; extraAtkHun += 4; }
 
-            // 2. 计算各兵种综合强度系数 S (杀伤初始固定为1)
+            // 罗莎修正
+            if (useRosa) { extraAtkHun += 30; }
+
+            // 2. 计算各兵种综合强度系数 S (杀伤力初始固定为1)
             const sInf = (1 + bAtkInf/100) * (1 + bLethInf/100) * 1;
             const sRid = (1 + bAtkRid/100) * (1 + bLethRid/100) * 3 * mRid;
-            const sHun = (1 + (bAtkHun + goldAtkHun)/100) * (1 + bLethHun/100) * 4 * mHun;
+            const sHun = (1 + (bAtkHun + extraAtkHun)/100) * (1 + bLethHun/100) * 4 * mHun;
 
             // 3. 计算权重 W = S^2
             const wInf = Math.pow(sInf, 2);
@@ -196,11 +208,8 @@
             // 4. 分配逻辑
             let finalInf, finalRid, finalHun;
             let showNotice = false;
-
-            // 计算纯理论值
             let idealInf = Math.round(capacity * (wInf / totalW));
 
-            // 判断是否启用 5000 盾约束
             if (useMinInf && idealInf < 5000 && capacity > 5000) {
                 finalInf = 5000;
                 showNotice = true;
@@ -225,7 +234,9 @@
                 <div class="result-row"><span>${t.troop_inf}</span> <span><span class="result-highlight">${finalInf.toLocaleString()}</span> (${getP(finalInf)}%)</span></div>
                 <div class="result-row"><span>${t.troop_rid}</span> <span><span class="result-highlight">${finalRid.toLocaleString()}</span> (${getP(finalRid)}%)</span></div>
                 <div class="result-row"><span>${t.troop_hun}</span> <span><span class="result-highlight">${finalHun.toLocaleString()}</span> (${getP(finalHun)}%)</span></div>
-                <div style="font-size:0.9em; margin-top:10px; color:#7f8c8d;">总计: ${(finalInf+finalRid+finalHun).toLocaleString()}</div>
+                <div style="font-size:0.9em; margin-top:10px; color:#7f8c8d; border-top:1px solid #eee; padding-top:5px;">
+                    ${t.config_title}: 黄金${goldLevel} | 罗莎: ${useRosa?'YES':'NO'} | 强制盾: ${useMinInf?'YES':'NO'}
+                </div>
                 ${showNotice ? `<div class="notice">${t.msg_correction}</div>` : ''}
             `;
         }
