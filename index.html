@@ -3,25 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bear Trap Calculator - Pro</title>
+    <title>Bear Trap Calculator V4.0</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; color: #333; padding: 20px; max-width: 800px; margin: 0 auto; }
-        .lang-container { text-align: right; margin-bottom: 10px; }
-        h1 { text-align: center; color: #2c3e50; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .section-title { font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 5px; color: #555; }
-        .input-group { display: flex; gap: 15px; margin-bottom: 15px; align-items: center; flex-wrap: wrap; }
-        .input-group label { font-weight: bold; min-width: 130px; }
-        input[type="number"], select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 8px; text-align: center; border-bottom: 1px solid #eee; }
-        th { background-color: #f8f9fa; }
-        .btn-calc { width: 100%; padding: 15px; background-color: #e67e22; color: white; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; transition: 0.3s; }
-        .btn-calc:hover { background-color: #d35400; }
-        #result-area { display: none; background-color: #fef5e7; border: 1px solid #f5b041; padding: 20px; border-radius: 8px; }
-        .result-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1.1em; border-bottom: 1px dashed #f5b041; padding-bottom: 5px; }
-        .result-highlight { font-weight: bold; color: #d35400; }
-        .notice { font-size: 0.85em; color: #7f8c8d; margin-top: 10px; font-style: italic; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f0f2f5; color: #333; padding: 20px; max-width: 850px; margin: 0 auto; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 20px; }
+        h1 { text-align: center; color: #1a2a3a; border-bottom: 3px solid #e67e22; padding-bottom: 10px; }
+        .section-title { font-weight: bold; margin-bottom: 20px; color: #2c3e50; font-size: 1.2em; display: flex; align-items: center; }
+        .input-group { display: flex; gap: 20px; margin-bottom: 15px; align-items: center; flex-wrap: wrap; }
+        .input-group label { font-weight: 600; min-width: 140px; }
+        input[type="number"], select { padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; }
+        .checkbox-group { display: flex; gap: 25px; margin: 20px 0; padding: 15px; background: #fff9f0; border-radius: 8px; }
+        .checkbox-item { display: flex; align-items: center; cursor: pointer; font-weight: 600; }
+        .checkbox-item input { margin-right: 10px; width: 18px; height: 18px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; }
+        th { background-color: #f8f9fa; color: #666; }
+        .btn-calc { width: 100%; padding: 18px; background: linear-gradient(135deg, #e67e22, #d35400); color: white; border: none; border-radius: 8px; font-size: 1.1em; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn-calc:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+        #result-area { display: none; margin-top: 20px; border: 2px solid #e67e22; }
+        .result-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; font-size: 1.15em; }
+        .result-highlight { font-weight: bold; color: #e67e22; font-size: 1.2em; }
+        .lang-container { text-align: right; margin-bottom: 15px; }
     </style>
 </head>
 <body>
@@ -33,28 +35,40 @@
         </select>
     </div>
 
-    <h1 data-i18n="title">🐻 打熊配兵比例计算器</h1>
-    
+    <h1 data-i18n="title">🐻 打熊配兵比例计算器 V4.0</h1>
+
     <div class="card">
-        <div class="section-title" data-i18n="config_title">战术配置</div>
+        <div class="section-title" data-i18n="config_title">🛠️ 基础配置</div>
+        
         <div class="input-group">
             <label data-i18n="label_capacity">出征容量：</label>
-            <input type="number" id="totalCapacity" value="160000">
+            <input type="number" id="totalCapacity" value="160000" step="1000">
         </div>
 
         <div class="input-group">
-            <label data-i18n="label_tier">英雄兵种等级：</label>
-            <select id="heroTier" class="tier-select" style="min-width: 200px;">
+            <label data-i18n="label_tier">黄金技能阶段：</label>
+            <select id="heroTier" style="min-width: 220px;">
                 <option value="none" data-i18n="opt_none">普通 (低于黄金3)</option>
-                <option value="g3" data-i18n="opt_g3">黄金 3 (技能 1.1x)</option>
-                <option value="g5" data-i18n="opt_g5">黄金 5 (技能 1.15x)</option>
+                <option value="g3" data-i18n="opt_g3">黄金 3 (1.1x 增伤)</option>
+                <option value="g5" data-i18n="opt_g5">黄金 5 (1.15x 增伤)</option>
                 <option value="g8" data-i18n="opt_g8">黄金 8 (弓兵 1.225x + 4%攻)</option>
             </select>
+        </div>
+
+        <div class="checkbox-group">
+            <label class="checkbox-item">
+                <input type="checkbox" id="useRosa"> 
+                <span data-i18n="label_rosa">使用罗莎 (弓兵攻击x1.3)</span>
+            </label>
+            <label class="checkbox-item">
+                <input type="checkbox" id="useShieldLimit" checked> 
+                <span data-i18n="label_shield_limit">盾兵约束 (至少5,000)</span>
+            </label>
         </div>
     </div>
 
     <div class="card">
-        <div class="section-title" data-i18n="stats_title">个人加成数值 (x)</div>
+        <div class="section-title" data-i18n="stats_title">📈 玩家个人加成 (x%)</div>
         <table>
             <thead>
                 <tr>
@@ -66,72 +80,73 @@
             <tbody>
                 <tr>
                     <td data-i18n="troop_inf">🛡️ 盾兵</td>
-                    <td><input type="number" id="inf_atk" value="400"></td>
-                    <td><input type="number" id="inf_leth" value="400"></td>
+                    <td><input type="number" id="inf_atk" value="500"></td>
+                    <td><input type="number" id="inf_leth" value="500"></td>
                 </tr>
                 <tr>
                     <td data-i18n="troop_rid">🐎 骑兵</td>
-                    <td><input type="number" id="rid_atk" value="400"></td>
-                    <td><input type="number" id="rid_leth" value="400"></td>
+                    <td><input type="number" id="rid_atk" value="500"></td>
+                    <td><input type="number" id="rid_leth" value="500"></td>
                 </tr>
                 <tr>
                     <td data-i18n="troop_hun">🏹 弓兵</td>
-                    <td><input type="number" id="hun_atk" value="400"></td>
-                    <td><input type="number" id="hun_leth" value="400"></td>
+                    <td><input type="number" id="hun_atk" value="500"></td>
+                    <td><input type="number" id="hun_leth" value="500"></td>
                 </tr>
             </tbody>
         </table>
 
-        <button class="btn-calc" onclick="calculate()" style="margin-top: 20px;" data-i18n="btn_calc">生成最优配兵方案</button>
+        <button class="btn-calc" onclick="calculate()" style="margin-top: 25px;" data-i18n="btn_calc">生成计算结果</button>
     </div>
 
     <div class="card" id="result-area">
-        <div class="section-title" data-i18n="result_title">⚖️ 推荐出征方案</div>
+        <div class="section-title" data-i18n="result_title">📊 推荐配兵方案</div>
         <div id="result-content"></div>
-        <div class="notice" data-i18n="msg_correction">* 盾兵已自动补齐最低 5,000 以吸收伤害。</div>
     </div>
 
     <script>
         const translations = {
             "zh-CN": {
-                title: "🐻 打熊配兵比例计算器",
-                config_title: "战术与等级配置",
+                title: "🐻 打熊配兵比例计算器 V4.0",
+                config_title: "🛠️ 基础配置",
                 label_capacity: "出征容量：",
                 label_tier: "黄金技能阶段：",
+                label_rosa: "使用罗莎 (弓兵攻击x1.3)",
+                label_shield_limit: "盾兵约束 (至少5,000)",
                 opt_none: "普通 / 低于黄金3",
                 opt_g3: "黄金 3 (1.1x 增伤)",
                 opt_g5: "黄金 5 (1.15x 增伤)",
                 opt_g8: "黄金 8 (弓兵特强)",
-                stats_title: "面板加成数据",
+                stats_title: "📈 玩家个人加成 (x%)",
                 th_troop: "兵种",
                 th_buff_atk: "加成攻 (%)",
                 th_buff_leth: "加成杀 (%)",
                 troop_inf: "🛡️ 盾兵",
                 troop_rid: "🐎 骑兵",
                 troop_hun: "🏹 弓兵",
-                btn_calc: "计算最佳比例",
-                result_title: "⚖️ 最佳配兵方案",
-                msg_correction: "* 盾兵已补齐 5000 (游戏机制需要)，其余按权重分配。"
+                btn_calc: "生成计算结果",
+                result_title: "📊 推荐配兵方案"
             },
             "en": {
-                title: "Bear Trap Calculator",
-                config_title: "Tactics & Tier",
+                title: "Bear Trap Calculator V4.0",
+                config_title: "🛠️ Basic Configuration",
                 label_capacity: "March Capacity:",
-                label_tier: "Hero Skill Tier:",
+                label_tier: "Gold Skill Tier:",
+                label_rosa: "Use Rosa (Archer Atk x1.3)",
+                label_shield_limit: "Infantry Min 5,000",
                 opt_none: "Standard / < Gold 3",
                 opt_g3: "Gold 3 (1.1x Dmg)",
                 opt_g5: "Gold 5 (1.15x Dmg)",
                 opt_g8: "Gold 8 (Archer Spec)",
-                stats_title: "Your Bonus Stats",
+                stats_title: "📈 Personal Stats (x%)",
                 th_troop: "Type",
                 th_buff_atk: "Atk Bonus (%)",
                 th_buff_leth: "Leth Bonus (%)",
                 troop_inf: "🛡️ Infantry",
                 troop_rid: "🐎 Cavalry",
                 troop_hun: "🏹 Archer",
-                btn_calc: "Calculate Best Ratio",
-                result_title: "⚖️ Optimal Formation",
-                msg_correction: "* Infantry adjusted to 5,000 min; others by weight."
+                btn_calc: "Calculate Result",
+                result_title: "📊 Recommended Formation"
             }
         };
 
@@ -149,40 +164,35 @@
         function calculate() {
             const cap = parseFloat(document.getElementById('totalCapacity').value) || 0;
             const tier = document.getElementById('heroTier').value;
+            const useRosa = document.getElementById('useRosa').checked;
+            const useShieldLimit = document.getElementById('useShieldLimit').checked;
+
+            if (cap <= 0) return alert("Please enter capacity");
+
+            const getVal = (id) => parseFloat(document.getElementById(id).value) || 0;
             
-            // 基础属性 (N=1)
+            // 基础攻击力系数
             const base = { inf: 1, rid: 3, hun: 4 };
-            
-            // 获取加成
-            const stats = {
-                infAtk: parseFloat(document.getElementById('inf_atk').value) || 0,
-                infLeth: parseFloat(document.getElementById('inf_leth').value) || 0,
-                ridAtk: parseFloat(document.getElementById('rid_atk').value) || 0,
-                ridLeth: parseFloat(document.getElementById('rid_leth').value) || 0,
-                hunAtk: parseFloat(document.getElementById('hun_atk').value) || 0,
-                hunLeth: parseFloat(document.getElementById('hun_leth').value) || 0
-            };
 
-            // 计算各兵种单兵强度 S
-            // 盾兵 S
-            let s_inf = (1 + stats.infAtk/100) * (1 + stats.infLeth/100) * base.inf;
+            // 1. 盾兵强度 S_inf
+            let s_inf = (1 + getVal('inf_atk')/100) * (1 + getVal('inf_leth')/100) * base.inf;
 
-            // 骑兵 S
-            let ridSkill = 1.0;
-            if (tier === 'g3') ridSkill = 1.1;
-            else if (tier === 'g5' || tier === 'g8') ridSkill = 1.15;
-            let s_rid = (1 + stats.ridAtk/100) * (1 + stats.ridLeth/100) * base.rid * ridSkill;
+            // 2. 骑兵强度 S_rid
+            let ridSkill = (tier === 'g3') ? 1.1 : (tier === 'g5' || tier === 'g8') ? 1.15 : 1.0;
+            let s_rid = (1 + getVal('rid_atk')/100) * (1 + getVal('rid_leth')/100) * base.rid * ridSkill;
 
-            // 弓兵 S
+            // 3. 弓兵强度 S_hun
             let hunSkill = 1.21; // 固有被动
-            let hunAtkBonus = stats.hunAtk;
+            let hunAtkBonus = getVal('hun_atk');
             if (tier === 'g3') hunSkill *= 1.1;
             else if (tier === 'g5') hunSkill *= 1.15;
-            else if (tier === 'g8') {
-                hunSkill *= 1.225;
-                hunAtkBonus += 4; // 黄金8 额外 4% 攻击
-            }
-            let s_hun = (1 + hunAtkBonus/100) * (1 + stats.hunLeth/100) * base.hun * hunSkill;
+            else if (tier === 'g8') { hunSkill *= 1.225; hunAtkBonus += 4; }
+
+            // 罗莎加成逻辑：(1 + x%) * 1.3
+            let hunAtkFactor = (1 + hunAtkBonus/100);
+            if (useRosa) hunAtkFactor *= 1.3;
+
+            let s_hun = hunAtkFactor * (1 + getVal('hun_leth')/100) * base.hun * hunSkill;
 
             // 权重 W = S^2
             const w_inf = s_inf ** 2;
@@ -190,22 +200,30 @@
             const w_hun = s_hun ** 2;
             const totalW = w_inf + w_rid + w_hun;
 
-            // 分配逻辑
-            let finalInf = 5000; 
-            let remaining = cap - finalInf;
-            if (remaining < 0) { finalInf = cap; remaining = 0; }
+            let finalInf, finalRid, finalHun;
 
-            const subTotalW = w_rid + w_hun;
-            let finalRid = Math.round(remaining * (w_rid / subTotalW));
-            let finalHun = remaining - finalRid;
+            if (useShieldLimit) {
+                finalInf = Math.min(cap, 5000);
+                let rem = cap - finalInf;
+                let subW = w_rid + w_hun;
+                finalRid = Math.round(rem * (w_rid / subW));
+                finalHun = rem - finalRid;
+            } else {
+                finalInf = Math.round(cap * (w_inf / totalW));
+                finalRid = Math.round(cap * (w_rid / totalW));
+                finalHun = cap - finalInf - finalRid;
+            }
 
-            // 渲染结果
+            // UI 渲染
             const t = translations[currentLang];
             document.getElementById('result-area').style.display = 'block';
             document.getElementById('result-content').innerHTML = `
                 <div class="result-row"><span>${t.troop_inf}</span> <span><span class="result-highlight">${finalInf.toLocaleString()}</span> (${((finalInf/cap)*100).toFixed(1)}%)</span></div>
                 <div class="result-row"><span>${t.troop_rid}</span> <span><span class="result-highlight">${finalRid.toLocaleString()}</span> (${((finalRid/cap)*100).toFixed(1)}%)</span></div>
                 <div class="result-row"><span>${t.troop_hun}</span> <span><span class="result-highlight">${finalHun.toLocaleString()}</span> (${((finalHun/cap)*100).toFixed(1)}%)</span></div>
+                <div style="font-size:0.85em; color:#888; margin-top:15px; text-align:right;">
+                    * 计算基于拉格朗日乘数法极值逻辑 (S² 权重分配)
+                </div>
             `;
         }
     </script>
