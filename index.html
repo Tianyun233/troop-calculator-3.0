@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bear Trap Calculator - Pro v3.5</title>
+    <title>Bear Trap Calculator - Pro v3.6</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; color: #333; padding: 20px; max-width: 800px; margin: 0 auto; }
         .lang-container { text-align: right; margin-bottom: 10px; }
@@ -55,7 +55,7 @@
                 <option value="0">低于黄金 3 (无加成)</option>
                 <option value="3">黄金 3 (伤害 1.1x)</option>
                 <option value="5">黄金 5 (伤害 1.15x)</option>
-                <option value="8">黄金 8 (弓 1.225x + 4%攻)</option>
+                <option value="8">黄金 8 (弓 1.225x + 1.04倍攻独立乘区)</option>
             </select>
         </div>
 
@@ -182,27 +182,33 @@
             const bAtkHun = parseFloat(document.getElementById('hun_buff_atk').value) || 0;
             const bLethHun = parseFloat(document.getElementById('hun_buff_leth').value) || 0;
 
-            // 1. 黄金等级修正系数
-            let mRid = 1.0;  // 取消 0.8 惩罚，默认 100% 强度 [修正点]
+            // 1. 兵种修正系数 (取消 0.8 惩罚)
+            let mRid = 1.0; 
             let mHun = 1.21;
-            let goldAtkHun = 0;
+            let goldAtkHunMult = 1.0; // TG8 攻击力乘数
 
             if (goldLevel >= 3) { mRid *= 1.1; mHun *= 1.1; }
-            if (goldLevel >= 5) { mRid = 1.15; mHun = 1.21 * 1.15; } // 基于 1.0 的 1.15 倍
-            if (goldLevel >= 8) { mRid = 1.15; mHun = 1.21 * 1.225; goldAtkHun = 4; }
+            if (goldLevel >= 5) { mRid = 1.15; mHun = 1.21 * 1.15; }
+            if (goldLevel >= 8) { 
+                mRid = 1.15; 
+                mHun = 1.21 * 1.225; 
+                goldAtkHunMult = 1.04; // 设定为独立的 1.04 倍乘数 [修正点]
+            }
 
-            // 2. 强度系数 S 计算 (W = S^2)
+            // 2. 强度系数 S 计算
             const sInf = (1 + bAtkInf/100) * (1 + bLethInf/100) * 1;
             const sRid = (1 + bAtkRid/100) * (1 + bLethRid/100) * 3 * mRid;
-            const sHun = (1 + (bAtkHun + goldAtkHun)/100) * rosaMultiplier * (1 + bLethHun/100) * 4 * mHun;
+            
+            // 弓兵强度：(面板加成区) * (TG8独立乘数) * (罗莎乘数) * (杀伤区) * 基础系数 * 黄金修正
+            const sHun = (1 + bAtkHun/100) * goldAtkHunMult * rosaMultiplier * (1 + bLethHun/100) * 4 * mHun;
 
-            // 3. 计算权重 W
+            // 3. 权重 W = S^2
             const wInf = Math.pow(sInf, 2);
             const wRid = Math.pow(sRid, 2);
             const wHun = Math.pow(sHun, 2);
             const totalW = wInf + wRid + wHun;
 
-            // 4. 分配逻辑
+            // 4. 分配
             let finalInf, finalRid, finalHun;
             let showNotice = false;
             let idealInf = Math.round(capacity * (wInf / totalW));
@@ -220,7 +226,7 @@
                 finalHun = capacity - finalInf - finalRid;
             }
 
-            // 5. 结果显示
+            // 5. 渲染
             const resultArea = document.getElementById('result-area');
             const resultContent = document.getElementById('result-content');
             resultArea.style.display = 'block';
